@@ -1,0 +1,96 @@
+version: '3'
+
+networks:
+  default:
+    external:
+      name: wework_dev
+
+services:
+  base: &app_base
+    image: ${CONTAINER_TAG:-quay.io/wework/bp-we-eat:master}
+    # Uncomment to add environment variables
+    # env_file: .env
+    environment:
+      # you can add more shared ENV here
+      # you can also have multiple env_files if you prefer
+      # committing it that way
+      #
+      # if you want to talk to something on the host
+      # you can use this as the url (replacing `localhost`):
+      # `host.docker.internal`
+      - DATABASE_URL=postgres://postgres:R0tate1@pg/
+      - REDIS_URL=redis://redis:6379
+      - RABBIT_URL=amqp://guest:guest@rabbitmq
+      - NEW_RELIC_AGENT_ENABLED=false
+      - SIDEKIQ_USERNAME=admin
+      - SIDEKIQ_PASSWORD=admin
+    volumes:
+      # this replaces the project folder in the docker image with the current directory
+      - ${PWD}:/app
+      # bp-we-eat-gems is a docker volume that will persist your gems for local use
+      # Since ruby gems are just interpreted files, we can persist the folder that they
+      # Contain easily
+      - bp-we-eat-gems:/usr/local/bundle
+      # Spring volume just so all of the services can take advantage of spring
+      # Needs to be exposed to all of them
+      - bp-we-eat-spring:/tmp/spring-0
+    tty: true
+    stdin_open: true
+
+  backend:
+    <<: *app_base
+    ports:
+    - "5000:80"
+    networks:
+      default:
+        aliases:
+        - bp-we-eat
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    expose:
+    - 4000
+    ports:
+    - "4000:3000"
+
+  spring:
+    <<: *app_base
+    command: spring server
+
+  jobs:
+    <<: *app_base
+    command: sidekiq -C config/sidekiq.yml
+
+  delivery_listener:
+    <<: *app_base
+    command: rake delivery:subscribe
+
+  pg:
+    image: postgres:10.5
+    ports:
+      - "5103:5432"
+    volumes:
+      - ${HOME}/.we-data/pg-10-data/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=R0tate1
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  redis:
+    image: "redis:4.0.11-alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - ${HOME}/.we-data/redis-4-data:/data
+
+volumes:
+  bp-we-eat-gems:
+    external: true
+  bp-we-eat-spring:
+    external: true
