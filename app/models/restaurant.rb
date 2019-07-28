@@ -21,7 +21,10 @@ class Restaurant < ApplicationRecord
     super.except('created_at', 'updated_at').tap do |hash|
       hash['coordinates'] = { lat: latitude, lon: longitude }
       if !reviews.nil?
-        hash['reviews'] = [reviews]
+        hash['reviews'] = []
+        reviews.each do |rev|
+          hash['reviews'].push({ id: rev.id, name: rev.name, comment: rev.comment, rating: rev.rating })
+        end
       end
       if !cuisine.nil?
         hash['cuisine'] = { name: cuisine.name, icon: cuisine.icon }
