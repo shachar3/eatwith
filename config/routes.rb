@@ -20,6 +20,9 @@ Rails.application.routes.draw do
 
   scope :api do
     scope 'v1.0' do
+      resources :restaurants, only: [:index]
+      resources :cuisines, only: [:index]
+      resources :reviews, only: [:index]
       namespace :deliveries_manager do
         resources :deliveries, only: [:index, :show, :create]
       end
