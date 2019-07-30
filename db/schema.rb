@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190724115054) do
+ActiveRecord::Schema.define(version: 20190730085811) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,20 +31,20 @@ ActiveRecord::Schema.define(version: 20190724115054) do
     t.string "icon"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "restaurant_id"
-    t.index ["restaurant_id"], name: "index_cuisines_on_restaurant_id"
   end
 
   create_table "restaurants", force: :cascade do |t|
     t.string "name"
-    t.string "cuisine"
-    t.boolean "accepts_10bis"
+    t.boolean "accepts_10bis", default: true
     t.string "address"
-    t.integer "max_delivery_time"
+    t.integer "max_delivery_time", default: 60
     t.float "longitude"
     t.float "latitude"
+    t.integer "zomato_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "cuisine_id"
+    t.index ["cuisine_id"], name: "index_restaurants_on_cuisine_id"
   end
 
   create_table "reviews", force: :cascade do |t|
@@ -57,6 +57,6 @@ ActiveRecord::Schema.define(version: 20190724115054) do
     t.index ["restaurant_id"], name: "index_reviews_on_restaurant_id"
   end
 
-  add_foreign_key "cuisines", "restaurants"
+  add_foreign_key "restaurants", "cuisines"
   add_foreign_key "reviews", "restaurants"
 end

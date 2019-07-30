@@ -14,11 +14,11 @@
 #
 
 class Restaurant < ApplicationRecord
-  has_one :cuisine
   has_many :reviews
+  belongs_to :cuisine
 
   def as_json(*)
-    super.except('created_at', 'updated_at').tap do |hash|
+    super.except('created_at', 'updated_at', 'longitude', 'latitude', 'zomato_id', 'cuisine_id').tap do |hash|
       hash['coordinates'] = { lat: latitude, lon: longitude }
       if !reviews.nil?
         hash['reviews'] = []
