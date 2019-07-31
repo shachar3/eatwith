@@ -12,7 +12,7 @@ namespace :import_restaurants_reviews do
     Restaurant.delete_all
     Cuisine.delete_all
   end
-  
+
   task :restaurants => :environment do
     json_restaurants = get_restaurants_from_zomato
     restaurants = JSON.parse(json_restaurants)
@@ -30,10 +30,10 @@ namespace :import_restaurants_reviews do
       # end
     end
   end
+
   def insert_restaurants_reviews_to_db(rd, rr)
     rest = Restaurant.create(:name => rd['name'], :zomato_id => rd['id'], :address => rd['location']['address'], :latitude => rd['location']['latitude'], :longitude => rd['location']['longitude'])
     if !rest.nil?
-      puts rd['cuisines']
       rd['cuisines'].split(',').each do |c|
         c = c.strip if c.present?
         next if c.blank?

@@ -15,7 +15,7 @@
 
 class Restaurant < ApplicationRecord
   has_many :reviews
-  belongs_to :cuisine
+  belongs_to :cuisine, optional: true
 
   def as_json(*)
     super.except('created_at', 'updated_at', 'longitude', 'latitude', 'zomato_id', 'cuisine_id').tap do |hash|

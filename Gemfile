@@ -42,4 +42,6 @@ group :development, :test do
   gem 'pry-byebug'
   gem 'pry-rails'
   gem 'spring'
+  gem 'debase'
+  gem 'ruby-debug-ide', '>=0.7.0.beta7'
 end
